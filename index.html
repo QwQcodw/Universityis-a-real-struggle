@@ -1,15 +1,4 @@
 <!DOCTYPE html>
-<html lang="en">
-
-  <head>
-    <meta charset="UTF-8">
-    <title>大學情境選擇</title>
-    
-
-  </head>
-    
-  <body>
-  <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -142,7 +131,7 @@
             border-color: var(--highlight);
         }
 
-        /* 結局畫面（修正置中） */
+        /* 結局畫面（雷達圖與置中） */
         .result-screen {
             display: flex;
             flex-direction: column;
@@ -156,13 +145,19 @@
         .result-screen .narrative {
             text-align: center;
             min-height: auto;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+        }
+
+        .radar-container {
+            margin: 10px 0 20px 0;
+            display: flex;
+            justify-content: center;
         }
 
         .end-title {
             font-size: 1.6rem;
             color: var(--highlight);
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             text-align: center;
         }
 
@@ -407,17 +402,121 @@
         render(nextKey);
     };
 
+    function drawRadarChart() {
+        const canvas = document.getElementById('radarChart');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const radius = 95;
+
+        // 五個軸向：健康、親情、娛樂、學業、友情
+        const categories = [
+            { key: 'health', label: '健康', color: '#fdd663' },
+            { key: 'family', label: '親情', color: '#ff7597' },
+            { key: 'interest', label: '娛樂', color: '#c58af9' },
+            { key: 'study', label: '學業', color: '#81c995' },
+            { key: 'friend', label: '友情', color: '#f28b82' }
+        ];
+
+        const totalAxes = categories.length;
+        const angleStep = (Math.PI * 2) / totalAxes;
+        const maxStatValue = 4; // 滿分設定
+
+        ctx.clearRect(0, 0, width, height);
+
+        // 繪製背景多邊形網格 (3 層)
+        const levels = 3;
+        for (let level = 1; level <= levels; level++) {
+            ctx.beginPath();
+            const currentR = (radius / levels) * level;
+            for (let i = 0; i < totalAxes; i++) {
+                const angle = i * angleStep - Math.PI / 2;
+                const x = centerX + currentR * Math.cos(angle);
+                const y = centerY + currentR * Math.sin(angle);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+
+        // 繪製軸線與文字標籤
+        ctx.font = 'bold 13px Segoe UI, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        for (let i = 0; i < totalAxes; i++) {
+            const angle = i * angleStep - Math.PI / 2;
+            const x = centerX + radius * Math.cos(angle);
+            const y = centerY + radius * Math.sin(angle);
+
+            // 軸線
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(x, y);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.stroke();
+
+            // 標籤文字
+            const labelX = centerX + (radius + 22) * Math.cos(angle);
+            const labelY = centerY + (radius + 18) * Math.sin(angle);
+            ctx.fillStyle = categories[i].color;
+            ctx.fillText(categories[i].label, labelX, labelY);
+        }
+
+        // 繪製玩家數值五角形區域
+        ctx.beginPath();
+        for (let i = 0; i < totalAxes; i++) {
+            const angle = i * angleStep - Math.PI / 2;
+            const val = Math.min(stats[categories[i].key], maxStatValue);
+            const ratio = Math.max(val / maxStatValue, 0.15); // 給予保底小半徑避免全為0時不可見
+            const x = centerX + radius * ratio * Math.cos(angle);
+            const y = centerY + radius * ratio * Math.sin(angle);
+
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(138, 180, 248, 0.4)';
+        ctx.fill();
+        ctx.strokeStyle = '#8ab4f8';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        // 標記端點圓點
+        for (let i = 0; i < totalAxes; i++) {
+            const angle = i * angleStep - Math.PI / 2;
+            const val = Math.min(stats[categories[i].key], maxStatValue);
+            const ratio = Math.max(val / maxStatValue, 0.15);
+            const x = centerX + radius * ratio * Math.cos(angle);
+            const y = centerY + radius * ratio * Math.sin(angle);
+
+            ctx.beginPath();
+            ctx.arc(x, y, 4, 0, Math.PI * 2);
+            ctx.fillStyle = '#8ab4f8';
+            ctx.fill();
+        }
+    }
+
     function showEnding() {
-        ui.time.innerText = "大學日常結算";
+        ui.time.innerText = "大學生活日常結算";
         let html = `
             <div class="result-screen">
-                <div class="end-title">選擇結束</div>
-                <div class="narrative">你面對各種情境做出你自己喜歡的選擇
-看看上方的點數儀表板，這可能是你所塑造的大學生活模式</div>
+                <div class="end-title">大學生活雷達圖</div>
+                <div class="radar-container">
+                    <canvas id="radarChart" width="280" height="280"></canvas>
+                </div>
+                <div class="narrative">大學沒有標準答案，你的每次選擇，都在塑造屬於自己的大一生活！</div>
                 <button class="restart-btn" onclick="restart()">重新體驗</button>
             </div>
         `;
         ui.content.innerHTML = html;
+        drawRadarChart();
     }
 
     window.restart = function() {
@@ -431,8 +530,4 @@
 </script>
 
 </body>
-</html>
-    
-  </body>
-  
 </html>
