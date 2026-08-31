@@ -131,60 +131,73 @@
             border-color: var(--highlight);
         }
 
-        /* 結局畫面（雷達圖、QR Code 與置中） */
+        /* 結局畫面（左右並排佈局） */
         .result-screen {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             text-align: center;
             animation: fadeIn 0.8s;
             width: 100%;
         }
 
-        .result-screen .narrative {
-            text-align: center;
-            min-height: auto;
+        .end-title {
+            font-size: 1.5rem;
+            color: var(--highlight);
             margin-bottom: 15px;
+            text-align: center;
+        }
+
+        /* 左右並排容器 */
+        .result-body {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            width: 100%;
+            gap: 15px;
+            margin: 5px 0 15px 0;
+            flex-wrap: wrap; /* 螢幕過窄時自適應堆疊 */
         }
 
         .radar-container {
-            margin: 5px 0 15px 0;
             display: flex;
             justify-content: center;
+            align-items: center;
         }
 
         .qr-section {
             background: rgba(255, 255, 255, 0.05);
-            padding: 15px 20px;
+            padding: 15px;
             border-radius: 12px;
-            margin: 15px 0 20px 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 170px;
         }
 
         .qr-section p {
             margin: 0 0 10px 0;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             color: #bdc1c6;
             font-weight: 500;
+            line-height: 1.4;
         }
 
         .qr-img {
-            width: 130px;
-            height: 130px;
+            width: 120px;
+            height: 120px;
             border-radius: 8px;
             background: #fff;
-            padding: 4px;
+            padding: 3px;
         }
 
-        .end-title {
-            font-size: 1.6rem;
-            color: var(--highlight);
-            margin-bottom: 5px;
+        .result-screen .narrative {
             text-align: center;
+            min-height: auto;
+            margin: 10px 0 15px 0;
+            font-size: 0.95rem;
+            color: #9aa0a6;
         }
 
         .restart-btn {
@@ -192,9 +205,9 @@
             color: #202124;
             font-weight: bold;
             text-align: center;
-            margin-top: 5px;
             padding: 12px 28px;
             border-radius: 8px;
+            font-size: 1rem;
         }
         
         .restart-btn:hover {
@@ -436,7 +449,7 @@
         const height = canvas.height;
         const centerX = width / 2;
         const centerY = height / 2;
-        const radius = 90;
+        const radius = 80;
 
         const categories = [
             { key: 'health', label: '健康', color: '#fdd663' },
@@ -469,7 +482,7 @@
             ctx.stroke();
         }
 
-        ctx.font = 'bold 13px Segoe UI, sans-serif';
+        ctx.font = 'bold 12px Segoe UI, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
@@ -484,8 +497,8 @@
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
             ctx.stroke();
 
-            const labelX = centerX + (radius + 22) * Math.cos(angle);
-            const labelY = centerY + (radius + 18) * Math.sin(angle);
+            const labelX = centerX + (radius + 18) * Math.cos(angle);
+            const labelY = centerY + (radius + 15) * Math.sin(angle);
             ctx.fillStyle = categories[i].color;
             ctx.fillText(categories[i].label, labelX, labelY);
         }
@@ -505,7 +518,7 @@
         ctx.fillStyle = 'rgba(138, 180, 248, 0.4)';
         ctx.fill();
         ctx.strokeStyle = '#8ab4f8';
-        ctx.lineWidth = 2.5;
+        ctx.lineWidth = 2;
         ctx.stroke();
 
         for (let i = 0; i < totalAxes; i++) {
@@ -516,7 +529,7 @@
             const y = centerY + radius * ratio * Math.sin(angle);
 
             ctx.beginPath();
-            ctx.arc(x, y, 4, 0, Math.PI * 2);
+            ctx.arc(x, y, 3.5, 0, Math.PI * 2);
             ctx.fillStyle = '#8ab4f8';
             ctx.fill();
         }
@@ -527,16 +540,21 @@
         let html = `
             <div class="result-screen">
                 <div class="end-title">大一生活雷達圖</div>
-                <div class="radar-container">
-                    <canvas id="radarChart" width="270" height="270"></canvas>
-                </div>
-                <div class="narrative">大學沒有標準答案，你的每次抉擇，都在定義自己的大一生活！</div>
                 
-                <div class="qr-section">
-                    <p>加入官方 LINE / 關注更多資訊</p>
-                    <img class="qr-img" src="qrcode.png" alt="LINE QR Code">
+                <div class="result-body">
+                    <!-- 左邊：雷達圖 -->
+                    <div class="radar-container">
+                        <canvas id="radarChart" width="240" height="240"></canvas>
+                    </div>
+
+                    <!-- 右邊：QR Code 區塊 (預設讀取 qrcode.jpg) -->
+                    <div class="qr-section">
+                        <p>加入官方 LINE<br>關注更多資訊</p>
+                        <img class="qr-img" src="qrcode.jpg" alt="LINE QR Code">
+                    </div>
                 </div>
 
+                <div class="narrative">大學沒有標準答案，你的每次抉擇，都在定義自己的大一生活！</div>
                 <button class="restart-btn" onclick="restart()">重新體驗</button>
             </div>
         `;
