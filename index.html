@@ -266,7 +266,7 @@
         // --- 第一關 ---
         start: {
             time: "20:00",
-            text: `剛吃完晚餐，社團幹部與系隊同時在群組狂艾特你：「今晚迎新複驗/練球一定要來，結束去吃宵夜！」但是明天早上要考試。`,
+            text: `剛吃完晚餐，社團幹部與系隊同時在群組狂@你：「今晚迎新彩排/練球一定要來，結束去吃宵夜！」但是明天早上要考試。`,
             choices: [
                 {
                     txt: "立刻抓起外套出門赴約，大學人脈跟社交體驗才是一輩子的。",
@@ -536,10 +536,10 @@
     }
 
     function showEnding() {
-        ui.time.innerText = "大一日常結算";
+        ui.time.innerText = "大學日常結算";
         let html = `
             <div class="result-screen">
-                <div class="end-title">大一生活雷達圖</div>
+                <div class="end-title">大學生活雷達圖</div>
                 
                 <div class="result-body">
                     <!-- 左邊：雷達圖 -->
@@ -549,12 +549,12 @@
 
                     <!-- 右邊：QR Code 區塊 (預設讀取 qrcode.jpg) -->
                     <div class="qr-section">
-                        <p>加入官方 LINE<br>關注更多資訊</p>
+                        <p>社團LINE群組<br>關注更多資訊</p>
                         <img class="qr-img" src="qrcode.jpg" alt="LINE QR Code">
                     </div>
                 </div>
 
-                <div class="narrative">大學沒有標準答案，你的每次抉擇，都在定義自己的大一生活！</div>
+                <div class="narrative">大學沒有標準答案，你的每次選擇，都在塑造屬於自己的大一生活！</div>
                 <button class="restart-btn" onclick="restart()">重新體驗</button>
             </div>
         `;
