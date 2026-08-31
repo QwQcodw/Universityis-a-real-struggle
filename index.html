@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>大學情境選擇</title>
+    
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大一生活：五層試煉</title>
+    <style>
+        :root {
+            --bg-color: #202124;
+            --text-color: #e8eaed;
+            --card-bg: #303134;
+            --btn-bg: rgba(255,255,255,0.08);
+            --btn-hover: #3c4043;
+            --highlight: #8ab4f8;
+            
+            /* 五種屬性顏色 */
+            --c-friend: #f28b82;   /* 紅 - 友情 */
+            --c-study: #81c995;    /* 綠 - 學業 */
+            --c-health: #fdd663;   /* 黃 - 健康 */
+            --c-family: #ff7597;   /* 粉 - 親情 */
+            --c-interest: #c58af9; /* 紫 - 娛樂 */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 10px;
+        }
+
+        #game-container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 600px;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        /* 頂部時間與進度條 (5 關) */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #5f6368;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .time-display {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--highlight);
+        }
+
+        .progress-bar {
+            display: flex;
+            gap: 6px;
+        }
+
+        .step-dot {
+            width: 24px;
+            height: 6px;
+            background: #5f6368;
+            border-radius: 3px;
+            transition: 0.3s;
+        }
+        .step-dot.active { background: var(--highlight); }
+
+        /* 五種屬性分數欄 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            margin-bottom: 25px;
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.8rem;
+        }
+
+        .stat-val {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-top: 2px;
+        }
+
+        /* 劇情區域 */
+        .narrative {
+            line-height: 1.7;
+            font-size: 1.05rem;
+            margin-bottom: 30px;
+            min-height: 100px;
+            white-space: pre-wrap;
+        }
+
+        /* 按鈕群組 */
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        button {
+            background-color: var(--btn-bg);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-color);
+            padding: 16px 20px;
+            border-radius: 10px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        button:hover {
+            background-color: var(--btn-hover);
+            transform: translateX(5px);
+            border-color: var(--highlight);
+        }
+
+        /* 結局畫面（修正置中） */
+        .result-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            animation: fadeIn 0.8s;
+            width: 100%;
+        }
+
+        .result-screen .narrative {
+            text-align: center;
+            min-height: auto;
+            margin-bottom: 20px;
+        }
+
+        .end-title {
+            font-size: 1.6rem;
+            color: var(--highlight);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .restart-btn {
+            background-color: var(--highlight);
+            color: #202124;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+            padding: 14px 28px;
+            border-radius: 8px;
+        }
+        
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        /* 動畫 */
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div class="header">
+        <div class="time-display" id="time">20:00</div>
+        <div class="progress-bar">
+            <div class="step-dot active"></div>
+            <div class="step-dot"></div>
+            <div class="step-dot"></div>
+            <div class="step-dot"></div>
+            <div class="step-dot"></div>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-item" style="color:var(--c-health)">
+            <span>健康</span><span id="s-health" class="stat-val">0</span>
+        </div>
+        <div class="stat-item" style="color:var(--c-family)">
+            <span>親情</span><span id="s-family" class="stat-val">0</span>
+        </div>
+        <div class="stat-item" style="color:var(--c-interest)">
+            <span>娛樂</span><span id="s-interest" class="stat-val">0</span>
+        </div>
+        <div class="stat-item" style="color:var(--c-study)">
+            <span>學業</span><span id="s-study" class="stat-val">0</span>
+        </div>
+        <div class="stat-item" style="color:var(--c-friend)">
+            <span>友情</span><span id="s-friend" class="stat-val">0</span>
+        </div>
+    </div>
+
+    <div id="content-area"></div>
+</div>
+
+<script>
+    let stats = { health: 0, family: 0, interest: 0, study: 0, friend: 0 };
+    let currentStep = 0;
+
+    const story = {
+        // --- 第一關 ---
+        start: {
+            time: "20:00",
+            text: `剛吃完晚餐，社團幹部與系隊同時在群組狂艾特你：「今晚迎新複驗/練球一定要來，結束去吃宵夜！」但是明天早上要考試。`,
+            choices: [
+                {
+                    txt: "立刻抓起外套出門赴約，大學人脈跟社交體驗才是一輩子的。",
+                    next: "L2",
+                    add: { friend: 1, interest: 1 }
+                },
+                {
+                    txt: "群組直接已讀不回或禮貌請假，留在圖書館專心把明天考試搞定。",
+                    next: "L2",
+                    add: { study: 1, health: 1 }
+                },
+                {
+                    txt: "去現場露個臉 20 分鐘打招呼，跟幹部說「明天有考試」後快速回宿舍。",
+                    next: "L2",
+                    add: { study: 1, friend: 1 }
+                }
+            ]
+        },
+
+        // --- 第二關 ---
+        L2: {
+            time: "22:00",
+            text: `回到宿舍剛想坐下，室友帶著滿身負能量摔門進來，哭訴自己分組報告被搭便車、感情受挫，想找你聊聊；此時另一位室友正準備熄燈睡覺。`,
+            choices: [
+                {
+                    txt: "放下課本轉過去認真聽他吐苦水，甚至陪他下樓去便利商店買飲料。",
+                    next: "L3",
+                    add: { friend: 1 }
+                },
+                {
+                    txt: "戴上抗噪耳機專心刷題，淡淡回一句「辛苦了，但我明天期中先不聊喔」。",
+                    next: "L3",
+                    add: { health: 1, study: 1 }
+                },
+                {
+                    txt: "提議「別想了啦！開電腦打兩場遊戲轉換心情」，兩個人一起逃避現實。",
+                    next: "L3",
+                    add: { interest: 1, friend: 1 }
+                }
+            ]
+        },
+
+        // --- 第三關 ---
+        L3: {
+            time: "23:30",
+            text: `手機響起，媽媽打視訊電話過來問：「住校習慣嗎？錢夠不夠用？這週末要不要回家？」你看著完全沒念完的書，背景是室友在打遊戲的吵鬧聲。`,
+            choices: [
+                {
+                    txt: "走到陽台好好接起電話，跟家人聊聊最近住校的真實生活與焦慮。",
+                    next: "L4",
+                    add: { family: 1, health: 1 }
+                },
+                {
+                    txt: "匆匆講一分鐘：「在讀書快被當了，週末再說掰掰！」直接掛斷。",
+                    next: "L4",
+                    add: { family: 1, study: 1 }
+                },
+                {
+                    txt: "按掉通話回傳「在圖書館不方便講」，實際上點開 IG / Threads 狂滑短影音放空。",
+                    next: "L4",
+                    add: { interest: 1 }
+                }
+            ]
+        },
+
+        // --- 第四關 ---
+        L4: {
+            time: "01:30",
+            text: `讀書讀到精疲力竭、大腦當機。隔壁寢敲門問要不要一起叫外送麥當勞，手機 Discord 群組也跳出「英雄聯盟/特戰英豪缺 1」的語音邀請。`,
+            choices: [
+                {
+                    txt: "立刻掏錢跟隔壁寢湊麥當勞外送，順便加入語音打遊戲。",
+                    next: "L5",
+                    add: { interest: 1, friend: 1 }
+                },
+                {
+                    txt: "猛灌一整瓶能量飲料硬壓下飢餓感，強迫自己把最後幾章公式背完。",
+                    next: "L5",
+                    add: { study: 1 }
+                },
+                {
+                    txt: "洗澡刷牙睡覺。",
+                    next: "L5",
+                    add: { health: 1 }
+                }
+            ]
+        },
+
+        // --- 第五關 ---
+        L5: {
+            time: "月底生活",
+            text: `大一剛學會自由支配生活費，但到了月底戶頭數字慘不忍睹。這時社團學長姐跟朋友興高采烈揪一頓人均 600 元的網美燒肉聚餐，說是「新生凝聚感情必去」；如果拒絕，你只能回宿舍吃泡麵。`,
+            choices: [
+                {
+                    txt: "錢再賺就有，青春不能缺席！硬著頭皮赴約，融入大家的熱絡氣氛。",
+                    next: "End",
+                    add: { friend: 1, interest: 1 }
+                },
+                {
+                    txt: "打電話跟家裡坦承生活費透支並認真討教理財，今晚老實吃健康便當或自煮。",
+                    next: "End",
+                    add: { family: 1, health: 1 }
+                },
+                {
+                    txt: "找藉口委婉拒絕聚餐，在宿舍泡碗麵配自己最愛的動漫/綜藝，輕鬆自在又不傷荷包。",
+                    next: "End",
+                    add: { health: 1, interest: 1 }
+                }
+            ]
+        },
+
+        // --- 結局 ---
+        End: { isEnd: true }
+    };
+
+    const ui = {
+        time: document.getElementById('time'),
+        content: document.getElementById('content-area'),
+        dots: document.querySelectorAll('.step-dot'),
+        val: {
+            health: document.getElementById('s-health'),
+            family: document.getElementById('s-family'),
+            interest: document.getElementById('s-interest'),
+            study: document.getElementById('s-study'),
+            friend: document.getElementById('s-friend')
+        }
+    };
+
+    function updateView() {
+        for (let key in stats) {
+            ui.val[key].innerText = stats[key];
+        }
+        
+        ui.dots.forEach((d, i) => {
+            d.className = i <= currentStep ? 'step-dot active' : 'step-dot';
+        });
+    }
+
+    function render(sceneKey) {
+        const scene = story[sceneKey];
+        ui.content.innerHTML = '';
+        ui.content.classList.remove('fade-in');
+        void ui.content.offsetWidth;
+        ui.content.classList.add('fade-in');
+
+        if (scene.isEnd) {
+            showEnding();
+            return;
+        }
+
+        ui.time.innerText = scene.time;
+        
+        let html = `<div class="narrative">${scene.text}</div>`;
+        html += `<div class="btn-group">`;
+        scene.choices.forEach((c) => {
+            const addStr = JSON.stringify(c.add).replace(/"/g, "'");
+            html += `<button onclick="choose('${c.next}', ${addStr})">${c.txt}</button>`;
+        });
+        html += `</div>`;
+        
+        ui.content.innerHTML = html;
+    }
+
+    window.choose = function(nextKey, addObj) {
+        for (let key in addObj) {
+            if (stats[key] !== undefined) {
+                stats[key] += addObj[key];
+            }
+        }
+        currentStep++;
+        updateView();
+        render(nextKey);
+    };
+
+    function showEnding() {
+        ui.time.innerText = "大學日常結算";
+        let html = `
+            <div class="result-screen">
+                <div class="end-title">選擇結束</div>
+                <div class="narrative">你面對各種情境做出你自己喜歡的選擇
+看看上方的點數儀表板，這可能是你所塑造的大學生活模式。</div>
+                <button class="restart-btn" onclick="restart()">重新體驗</button>
+            </div>
+        `;
+        ui.content.innerHTML = html;
+    }
+
+    window.restart = function() {
+        stats = { health: 0, family: 0, interest: 0, study: 0, friend: 0 };
+        currentStep = 0;
+        updateView();
+        render('start');
+    };
+
+    render('start');
+</script>
+
+</body>
+</html>
+    
+  </body>
+  
+</html>
