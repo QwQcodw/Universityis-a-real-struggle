@@ -131,7 +131,7 @@
             border-color: var(--highlight);
         }
 
-        /* 結局畫面（雷達圖與置中） */
+        /* 結局畫面（雷達圖、QR Code 與置中） */
         .result-screen {
             display: flex;
             flex-direction: column;
@@ -149,15 +149,41 @@
         }
 
         .radar-container {
-            margin: 10px 0 20px 0;
+            margin: 5px 0 15px 0;
             display: flex;
             justify-content: center;
+        }
+
+        .qr-section {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin: 15px 0 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .qr-section p {
+            margin: 0 0 10px 0;
+            font-size: 0.95rem;
+            color: #bdc1c6;
+            font-weight: 500;
+        }
+
+        .qr-img {
+            width: 130px;
+            height: 130px;
+            border-radius: 8px;
+            background: #fff;
+            padding: 4px;
         }
 
         .end-title {
             font-size: 1.6rem;
             color: var(--highlight);
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             text-align: center;
         }
 
@@ -166,8 +192,8 @@
             color: #202124;
             font-weight: bold;
             text-align: center;
-            margin-top: 10px;
-            padding: 14px 28px;
+            margin-top: 5px;
+            padding: 12px 28px;
             border-radius: 8px;
         }
         
@@ -227,7 +253,7 @@
         // --- 第一關 ---
         start: {
             time: "20:00",
-            text: `剛吃完晚餐，社團幹部與系隊同時在群組狂@你：「今晚迎新彩排/練球一定要來，結束去吃宵夜！」但是明天早上要考試。`,
+            text: `剛吃完晚餐，社團幹部與系隊同時在群組狂艾特你：「今晚迎新複驗/練球一定要來，結束去吃宵夜！」但是明天早上要考試。`,
             choices: [
                 {
                     txt: "立刻抓起外套出門赴約，大學人脈跟社交體驗才是一輩子的。",
@@ -410,9 +436,8 @@
         const height = canvas.height;
         const centerX = width / 2;
         const centerY = height / 2;
-        const radius = 95;
+        const radius = 90;
 
-        // 五個軸向：健康、親情、娛樂、學業、友情
         const categories = [
             { key: 'health', label: '健康', color: '#fdd663' },
             { key: 'family', label: '親情', color: '#ff7597' },
@@ -423,11 +448,10 @@
 
         const totalAxes = categories.length;
         const angleStep = (Math.PI * 2) / totalAxes;
-        const maxStatValue = 4; // 滿分設定
+        const maxStatValue = 4;
 
         ctx.clearRect(0, 0, width, height);
 
-        // 繪製背景多邊形網格 (3 層)
         const levels = 3;
         for (let level = 1; level <= levels; level++) {
             ctx.beginPath();
@@ -445,7 +469,6 @@
             ctx.stroke();
         }
 
-        // 繪製軸線與文字標籤
         ctx.font = 'bold 13px Segoe UI, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -455,26 +478,23 @@
             const x = centerX + radius * Math.cos(angle);
             const y = centerY + radius * Math.sin(angle);
 
-            // 軸線
             ctx.beginPath();
             ctx.moveTo(centerX, centerY);
             ctx.lineTo(x, y);
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
             ctx.stroke();
 
-            // 標籤文字
             const labelX = centerX + (radius + 22) * Math.cos(angle);
             const labelY = centerY + (radius + 18) * Math.sin(angle);
             ctx.fillStyle = categories[i].color;
             ctx.fillText(categories[i].label, labelX, labelY);
         }
 
-        // 繪製玩家數值五角形區域
         ctx.beginPath();
         for (let i = 0; i < totalAxes; i++) {
             const angle = i * angleStep - Math.PI / 2;
             const val = Math.min(stats[categories[i].key], maxStatValue);
-            const ratio = Math.max(val / maxStatValue, 0.15); // 給予保底小半徑避免全為0時不可見
+            const ratio = Math.max(val / maxStatValue, 0.15);
             const x = centerX + radius * ratio * Math.cos(angle);
             const y = centerY + radius * ratio * Math.sin(angle);
 
@@ -488,7 +508,6 @@
         ctx.lineWidth = 2.5;
         ctx.stroke();
 
-        // 標記端點圓點
         for (let i = 0; i < totalAxes; i++) {
             const angle = i * angleStep - Math.PI / 2;
             const val = Math.min(stats[categories[i].key], maxStatValue);
@@ -504,14 +523,20 @@
     }
 
     function showEnding() {
-        ui.time.innerText = "大學生活日常結算";
+        ui.time.innerText = "大一日常結算";
         let html = `
             <div class="result-screen">
-                <div class="end-title">大學生活雷達圖</div>
+                <div class="end-title">大一生活雷達圖</div>
                 <div class="radar-container">
-                    <canvas id="radarChart" width="280" height="280"></canvas>
+                    <canvas id="radarChart" width="270" height="270"></canvas>
                 </div>
-                <div class="narrative">大學沒有標準答案，你的每次選擇，都在塑造屬於自己的大一生活！</div>
+                <div class="narrative">大學沒有標準答案，你的每次抉擇，都在定義自己的大一生活！</div>
+                
+                <div class="qr-section">
+                    <p>加入官方 LINE / 關注更多資訊</p>
+                    <img class="qr-img" src="qrcode.png" alt="LINE QR Code">
+                </div>
+
                 <button class="restart-btn" onclick="restart()">重新體驗</button>
             </div>
         `;
